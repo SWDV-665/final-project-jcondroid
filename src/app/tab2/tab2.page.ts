@@ -90,6 +90,7 @@ class GameScene extends Phaser.Scene {
       child.setScale(0.25).refreshBody();
       child.setBounce(1);
       child.setVelocity(Phaser.Math.Between(-200, 200), 20);
+      child.setCollideWorldBounds(true);
     })
 
     this.physics.add.collider(this.coins, this.platforms)
