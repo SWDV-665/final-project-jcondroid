@@ -4,8 +4,8 @@ import * as Phaser from 'phaser';
 var WIDTH = window.innerWidth;
 var HEIGHT = window.innerHeight - (window.innerHeight / 4);
 var score = 0;
-var gameOver = false;
 
+// This class uses Phaser and controlls the scene object
 class GameScene extends Phaser.Scene {
   obstacleGroup: Phaser.Physics.Arcade.Group;
   platforms: Phaser.Physics.Arcade.StaticGroup;
@@ -20,6 +20,7 @@ class GameScene extends Phaser.Scene {
     super(config);
   }
 
+  // Load all of the assets for the game
   preload() {
     this.load.image('sky', '../../assets/images/sky.png');
     this.load.image('background', '../../assets/images/background.png');
@@ -27,13 +28,12 @@ class GameScene extends Phaser.Scene {
     this.load.image('spike', '../../assets/images/Spike.png');
     this.load.image('coin', '../../assets/images/Coin.png');
     this.load.spritesheet('dude', '../../assets/images/dude.png', { frameWidth: 32, frameHeight: 48 });
-    console.log('preload complete')
-    console.log('innerWidth: ', WIDTH)
-    console.log('innerHeight: ', HEIGHT)
+    // console.log('innerWidth: ', WIDTH)
+    // console.log('innerHeight: ', HEIGHT)
   }
 
+  // Create and display all objects on the screen
   create() {
-    // this.physics
     this.add.image(0, 0, 'sky').setOrigin(0, 0)
     this.scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000' });
 
@@ -47,6 +47,7 @@ class GameScene extends Phaser.Scene {
     this.player.setBounce(0.2);
     this.player.setCollideWorldBounds(true);
 
+    // Create the player movements from the player image
     this.anims.create({
       key: 'left',
       frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
@@ -78,6 +79,7 @@ class GameScene extends Phaser.Scene {
       setXY: { x: 12, y: 0, stepX: 70 }
     });
 
+
     this.coins.children.iterate(c => {
       const child = c as Phaser.Physics.Arcade.Image
       child.setScale(0.25).refreshBody();
@@ -95,12 +97,14 @@ class GameScene extends Phaser.Scene {
     this.physics.add.overlap(this.player, this.coins, collectCoin, null, this);
     this.physics.add.collider(this.player, this.spikes, hitSpike, null, this);
 
+    // Whenever the player collects a coin update their score
     function collectCoin(player, coin) {
       coin.disableBody(true, true);
       score += 10;
       this.scoreText.setText('Score: ' + score);
 
-      if(this.coins.countActive(true) === 0) {
+
+      if (this.coins.countActive(true) === 0) {
         this.coins.children.iterate(function (child) {
           child.enableBody(true, child.x, 0, true, true);
         });
@@ -114,20 +118,23 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    function hitSpike(player, spike) {
+    // If the player hits a spike then the game ends
+    function hitSpike() {
+      // Pause the game
       this.physics.pause();
+
+      // Update player sprite to red to indicate they died and then display text indicating Game Over
       this.player.setTint(0xff0000);
       this.player.anims.play('turn');
-      // score -= 50; // Not going to penalize if they lose
       this.scoreText.setText('Score: ' + score);
-      // gameOver = true;
-      this.gameOverText = this.add.text(WIDTH/4, HEIGHT/2, 'GAME OVER\nRefresh to play again\nTotal Score: ' + score, { fontWeight: 600, fontSize: '32px', fill: '#FF0000 ' });
+      this.gameOverText = this.add.text(WIDTH / 4, HEIGHT / 2, 'GAME OVER\nRefresh to play again\nTotal Score: ' + score, { fontWeight: 600, fontSize: '32px', fill: '#FF0000 ' });
+
+      // Add the user's score to local storage
       localStorage.setItem('score', score.toString());
     }
   }
 
-
-
+  // Updates the player's position
   update() {
     this.cursors = this.input.keyboard.createCursorKeys();
     if (this.cursors.left.isDown) {
@@ -147,6 +154,7 @@ class GameScene extends Phaser.Scene {
   }
 }
 
+// This is the normal Iconic component. In the constructor I added the config for the phaser game
 @Component({
   selector: 'app-tab2',
   templateUrl: 'tab2.page.html',
@@ -172,6 +180,7 @@ export class Tab2Page implements OnInit {
       scene: GameScene
     }
   }
+  // Here we pass the config into our Phaser game object
   ngOnInit(): void {
     this.phaserGame = new Phaser.Game(this.config);
   }

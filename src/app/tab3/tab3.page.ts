@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SocialSharing } from '@ionic-native/social-sharing';
 
 let allScores: Array<string>;
 
@@ -26,8 +27,15 @@ export class Tab3Page {
     return this.scores;
   }
 
-  shareScore() {
+  shareScore(score, index) {
+    let message = "I just got a score of " + score + "! Think you can beat me?";
+    let subject = "Shared via my custom Game App";
 
+    SocialSharing.share(message, subject).then(() => {
+      console.log("Shared successfully");
+    }).catch((error) => {
+      console.error("Error while sharing: ", error);
+    });
   }
 
 }
